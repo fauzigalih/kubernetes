@@ -1,0 +1,15 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: nama-cronjob
+spec:
+  schedule: "* * * * *"    # waktu / jadwal job dijalankan
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: nama-container
+              image: nama-image
+              # Spesifikasi tambahan untuk container
+            restartPolicy: OnFailure

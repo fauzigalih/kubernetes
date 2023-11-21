@@ -1,0 +1,14 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: nama-job
+spec:
+  completions: 12   # jumlah maksimal pod dijalankan
+  parallelism: 3   # jumlah pod yg dijalankan dalam 1 waktu
+  template:
+    spec:
+      restartPolicy: Never   # harus gunakan Never, karena Job sifatnya hanya 1 kali running
+      containers:
+      - name: nama-container
+        image: nama-image
+  backoffLimit: 4    # jumlah max mencoba jalankan pod, jika pod gagal

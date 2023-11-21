@@ -1,0 +1,10 @@
+apiVersion: v1  #versi API Kubernetes yang digunakan
+kind: Pod  #jenis objek Kubernetes yang akan dibuat
+metadata:  #metadata yang terkait dengan pod
+  name: nama-pod  #nama metadata pod
+spec:  #spesifikasi pod
+  containers:  #Daftar container yang akan dijalankan dalam pod
+  - name: nama-container
+    image: nama-image
+    ports:
+    - containerPort: port-container  #port container internal

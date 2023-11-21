@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nama-pvc
+  namespace: nama-namsespace # jika kosong, akan diset ke default
+spec:
+  resources:
+    requests:
+      storage: 1Gi # size volume yg di claim pada persistent volume
+  accessModes:
+    - ReadWriteOnce
+    - ReadOnlyMany
+    - ReadWriteMany
+  volumeName: nama-pv  # nama pv (persistent volume) yg di pilih

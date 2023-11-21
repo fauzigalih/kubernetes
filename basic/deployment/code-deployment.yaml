@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment-name
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      label1: label-deployment
+  template:
+    metadata:
+      labels:
+        label1: label-deployment
+    spec:
+      containers:
+      - name: container-name
+        image: image-name
+        ports:
+          - containerPort: 3000 #Port Container

@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: nama-daemonset
+spec:
+  selector:
+    matchLabels:
+      key1: value1
+  template:
+    metadata:
+      name: nama-pod
+      labels:
+        key1: value1
+    spec:
+      containers:
+        - name: nama-container
+          image: nama-image
+          ports:
+            - containerPort: port-container

@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: nodejs-statefulset
+spec:
+  selector:
+    matchLabels:
+      app: nodejs
+  serviceName: statefulset-service
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: nodejs
+    spec:
+      containers:
+      - name: nodejs
+        image: fauzigalih/nodejs-stateful
+        volumeMounts:
+        - name: nodejs-pvc
+          mountPath: /app/data
+  volumeClaimTemplates:
+  - metadata:
+      name: nodejs-pvc
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 1Gi
+
+---
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nodejs-pv
+spec:
+  capacity:
+    storage: 5Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: ./example/stateful-set
+

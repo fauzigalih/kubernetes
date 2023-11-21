@@ -1,0 +1,40 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nama-metadata
+spec:
+  containers:
+  - name: nama-container
+    image: nama-image
+    ports:
+    - containerPort: port-container
+    # Liveness Probe digunakan untuk menentukan apakah container masih hidup. Jika container tidak sehat, Kubernetes akan mencoba menghidupkannya ulang.
+    livenessProbe:
+      httpGet:   # Jenis probe yang menggunakan HTTP GET request untuk menguji apakah container telah selesai memulai.
+        path: /healthcheck   # Path endpoint HTTP yang akan diuji.
+        port: 80   # Port yang digunakan untuk probe.
+      initialDelaySeconds: 15   # Waktu yang diharapkan sebelum probe pertama kali dilakukan setelah container dimulai.
+      periodSeconds: 10   # interval waktu antara probe yang berulang (dalam contoh ini, probe akan dijalankan setiap 10 detik).
+      timeoutSeconds: 1   # batas waktu maksimum yang diizinkan untuk probe untuk menyelesaikan.
+      successThreshold: 1   # menentukan berapa kali probe harus berhasil, sebelum dianggap berhasil
+      failureThreshold: 3   # menentukan berapa kali probe harus gagal, sebelum dianggap gagal.
+    # Readiness Probe digunakan untuk menentukan apakah container telah siap menerima lalu lintas. Jika container tidak siap, Kubernetes akan menghentikan lalu lintas ke container tersebut.
+    readinessProbe:
+      httpGet:
+        path: /healthcheck
+        port: 80
+      initialDelaySeconds: 15
+      periodSeconds: 10
+      timeoutSeconds: 1
+      successThreshold: 1
+      failureThreshold: 3
+    # Startup Probe digunakan untuk menentukan apakah container telah selesai memulai. Ini berbeda dari Liveness Probe, yang dimulai setelah container berjalan. Startup Probe membantu menunda Liveness Probe jika aplikasi memerlukan waktu untuk memulai.
+    startupProbe:
+      httpGet:
+        path: /healthcheck
+        port: 80
+      initialDelaySeconds: 15
+      periodSeconds: 10
+      timeoutSeconds: 1
+      successThreshold: 1
+      failureThreshold: 3

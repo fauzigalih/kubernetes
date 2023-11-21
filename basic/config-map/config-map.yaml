@@ -1,0 +1,44 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mysql-configmap
+data:
+  MYSQL_ROOT_PASSWORD: password123
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mysql
+spec:
+  serviceName: mysql-service
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+        - name: mysql
+          image: mysql:8
+          ports:
+            - containerPort: 3306
+          envFrom:
+            - configMapRef:
+                name: mysql-configmap
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-service
+  namespace: pv
+spec:
+  type: ClusterIP
+  selector:
+    app: mysql
+  ports:
+    - protocol: TCP
+      port: 3306
+      targetPort: 3306

@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nama-metadata
+  labels:    # Label pod
+    environment: nama-label-environtment
+    app: nama-label-app
+spec:
+  containers:
+    - name: nama-container
+      image: nama-image
+      ports:
+        - containerPort: port-container

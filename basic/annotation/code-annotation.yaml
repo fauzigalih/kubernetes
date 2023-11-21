@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: annotations
+  annotations:  # Annotation mirip dengan dengan label, kekurangannya tidak bisa difilter seperti label
+    annotation-key: annotation-value
+spec:
+  containers:
+  - name: nama-container
+    image: nama-image
+    ports:
+    - containerPort: port-container

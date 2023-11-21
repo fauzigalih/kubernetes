@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nama-pv
+spec:
+  storageClassName: "local-storage" # nama storage class, jika kosong akan di set ke default
+  volumeMode: Filesystem   # Pilihan: Filesystem, Block
+  capacity:
+    storage: 5Gi  # size volume  
+  accessModes:
+    - ReadWriteOnce
+    - ReadOnlyMany
+    - ReadWriteMany
+  hostPath:   # gunakan hostPath jika penyimpanan di Node, ataupun selain menggunakan Cloud Provider 
+    path: /data   # directory penyimpanan pada minikube storage, akses: minikube ssh, cd /data
+    type: DirectoryOrCreate
+  reclaimPolicy: Retain   # Pilihan: Retain, Recycle, Delete
