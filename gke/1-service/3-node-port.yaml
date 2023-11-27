@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hello-world
+  template:
+    metadata:
+      labels:
+        app: hello-world
+    spec:
+      containers:
+      - name: hello-world
+        image: fauzigalih/hello:normal
+        ports:
+          - containerPort: 3000
+---
+# ini service tipe Node Port
+apiVersion: v1
+kind: Service
+metadata:
+  name: hello-service
+spec:
+  type: NodePort
+  selector:
+    app: hello-world
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 3000
+      nodePort: 30001
+
+# Akses aplikasi
+# kubectl get nodes -o wide   --> untuk lihat NODE_EXTERNAL_IP
+# http://<NODE-EXTERNAL-IP>:<NodePort>
+
+# jika masih belum bisa diakses, buat firewall rule
+# gcloud compute firewall-rules create fw-rule-gke-node-port --allow tcp:NODE_PORT
+# gcloud compute firewall-rules create fw-rule-gke-node-port --allow tcp:30080
+# gcloud compute firewall-rules list
