@@ -1,0 +1,78 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: regionalpd-storageclass
+provisioner: pd.csi.storage.gke.io
+parameters:
+  #type: pd-standard # Note: To use regional persistent disks of type pd-standard, set the PersistentVolumeClaim.storage attribute to 200Gi or higher. If you need a smaller persistent disk, use pd-ssd instead of pd-standard.
+  type: pd-ssd 
+  replication-type: regional-pd
+volumeBindingMode: WaitForFirstConsumer
+#allowedTopologies:  ##-->COMMENTED BECAUSE WE ARE USING REGIONAL GKE CLUSTER
+#  - matchLabelExpressions:
+#    - key: topology.gke.io/zone
+#      values:
+#        - us-central1-a
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-pvc
+spec: 
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: regionalpd-storageclass
+  resources: 
+    requests:
+      storage: 4Gi
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mysql-secret
+stringData:
+  MYSQL_ROOT_PASSWORD: password123
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mysql
+spec:
+  serviceName: mysql-service
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      volumes:
+        - name: mysql-persistent-storage
+          persistentVolumeClaim:
+            claimName: mysql-pvc
+      containers:
+        - name: mysql
+          image: mysql:8
+          ports:
+            - containerPort: 3306
+          envFrom:
+            - secretRef:
+                name: mysql-secret
+          volumeMounts:
+            - name: mysql-persistent-storage
+              mountPath: /var/lib/mysql
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: mysql
+  ports:
+    - protocol: TCP
+      port: 3306
+      targetPort: 3306
