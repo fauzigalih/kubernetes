@@ -1,0 +1,47 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-pvc-restore
+spec:
+  dataSource:
+    name: mysql-snapshot
+    kind: VolumeSnapshot
+    apiGroup: snapshot.storage.k8s.io
+  storageClassName: standard-rwo
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mysql
+spec:
+  serviceName: mysql-service
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      volumes:
+        - name: mysql-persistent-storage
+          persistentVolumeClaim:
+            #claimName: mysql-pvc           # ubah claimName menjadi pvc restore
+            claimName: mysql-pvc-restore
+      containers:
+        - name: mysql
+          image: mysql:8
+          ports:
+            - containerPort: 3306
+          envFrom:
+            - secretRef:
+                name: mysql-secret
+          volumeMounts:
+            - name: mysql-persistent-storage
+              mountPath: /var/lib/mysql
