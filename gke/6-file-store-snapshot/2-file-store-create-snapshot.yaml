@@ -1,0 +1,17 @@
+apiVersion: snapshot.storage.k8s.io/v1
+kind: VolumeSnapshotClass
+metadata:
+  name: mysql-filestore-volume-snap-class
+driver: filestore.csi.storage.gke.io
+parameters:
+  type: backup
+deletionPolicy: Delete
+---
+apiVersion: snapshot.storage.k8s.io/v1
+kind: VolumeSnapshot
+metadata:
+  name: mysql-filestore-volume-snap
+spec:
+  volumeSnapshotClassName: mysql-filestore-volume-snap-class
+  source:
+    persistentVolumeClaimName: gke-filestore-pvc
