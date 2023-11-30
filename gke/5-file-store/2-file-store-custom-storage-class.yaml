@@ -1,0 +1,104 @@
+# aktifkan Kubernetes Engine -> Features -> Filestore CSI driver (Enabled)
+# aktifkan FileStore -> Enabled Api FileStore
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: gke-filestore-pvc
+spec:
+  accessModes:
+  - ReadWriteMany
+  storageClassName: standard-rwx      # HDD StorageFile
+  resources:
+    requests:
+      storage: 1Ti
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mysql-secret
+stringData:
+  MYSQL_ROOT_PASSWORD: password123
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello-world
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hello
+  template:
+    metadata:
+      labels:
+        app: hello
+    spec:
+      volumes:
+        - name: persistent-storage
+          persistentVolumeClaim:
+            claimName: gke-filestore-pvc
+      containers:
+        - name: hello-normal
+          image: fauzigalih/hello:normal
+          ports:
+            - containerPort: 3000
+          volumeMounts:
+            - name: persistent-storage
+              mountPath: /app
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mysql
+spec:
+  serviceName: mysql-service
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      volumes:
+        - name: persistent-storage
+          persistentVolumeClaim:
+            claimName: gke-filestore-pvc
+      containers:
+        - name: mysql
+          image: mysql:8
+          ports:
+            - containerPort: 3306
+          envFrom:
+            - secretRef:
+                name: mysql-secret
+          volumeMounts:
+            - name: persistent-storage
+              mountPath: /var/lib/mysql
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hello-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: hello
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: mysql
+  ports:
+    - protocol: TCP
+      port: 3306
+      targetPort: 3306
