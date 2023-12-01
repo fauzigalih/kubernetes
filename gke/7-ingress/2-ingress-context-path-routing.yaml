@@ -1,0 +1,96 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prefix-one
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prefix-one
+  template:
+    metadata:
+      labels:
+        app: prefix-one
+    spec:
+      containers:
+        - name: prefix-one
+          image: fauzigalih/hello:prefix-one
+          ports:
+            - containerPort: 3000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prefix-two
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prefix-two
+  template:
+    metadata:
+      labels:
+        app: prefix-two
+    spec:
+      containers:
+        - name: prefix-two
+          image: fauzigalih/hello:prefix-two
+          ports:
+            - containerPort: 3000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prefix-one-service
+spec:
+  type: ClusterIP
+  selector:
+    app: prefix-one
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prefix-two-service
+spec:
+  type: ClusterIP
+  selector:
+    app: prefix-two
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-cpr
+  annotations:
+    # External Load Balancer  
+    kubernetes.io/ingress.class: "gce"  
+spec: 
+  defaultBackend:
+    service:
+      name: prefix-one-service
+      port:
+        number: 80                            
+  rules:
+    - http:
+        paths:           
+          - path: /one
+            pathType: Prefix
+            backend:
+              service:
+                name: prefix-one-service
+                port: 
+                  number: 80
+          - path: /two
+            pathType: Prefix
+            backend:
+              service:
+                name: prefix-two-service
+                port: 
+                  number: 80

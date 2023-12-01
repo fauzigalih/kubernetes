@@ -36,10 +36,11 @@ kind: Ingress
 metadata:
   name: ingress-basic 
 spec:
-  # If the ingress class is not specified it defaults to "gce".
-  # gce: external load balancer
-  # gce-internal: internal load balancer
-  ingressClassName: gce
+  annotations:
+    # If the class annotation is not specified it defaults to "gce".
+    # gce: external load balancer
+    # gce-internal: internal load balancer
+    kubernetes.io/ingress.class: "gce" 
   defaultBackend:
     service:
       name: nginx-service
